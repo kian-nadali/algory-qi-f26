@@ -1,9 +1,3 @@
-"""Homework 7 starter — Algory QI Education, Fall 2026
-
-The check that matters here is that your features never read the future. The
-checker builds your features twice, changing only data after row 400, and
-confirms the earlier rows did not move.
-"""
 import numpy as np
 import yfinance as yf
 import matplotlib.pyplot as plt
@@ -14,7 +8,7 @@ from sklearn.pipeline import make_pipeline
 
 
 def get_close(prices):
-    """Get a one-dimensional list of closing prices."""
+
     if hasattr(prices, "columns"):
         if "Close" in prices.columns:
             values = prices["Close"]
@@ -25,13 +19,7 @@ def get_close(prices):
 
 
 def build_features(prices, lookbacks=(1, 5, 20, 60)):
-    """One row per trading day: features first, label last.
 
-    Every feature must use only prices up to and including that day. The label is
-    the NEXT day's return, and it is the only forward-looking value allowed.
-
-    Return a list of rows, each [f1, f2, ..., fn, label].
-    """
     close = get_close(prices)
     rows = []
     start = max(max(lookbacks), 50, 20)
@@ -62,28 +50,20 @@ def build_features(prices, lookbacks=(1, 5, 20, 60)):
 
 
 def split_by_time(rows, train=0.6, val=0.2):
-    """Split in time order into (training, validation, test). Never shuffle.
 
-    Shuffling lets 2024 train the model that predicts 2016. It produces
-    spectacular, meaningless results and it is the most common mistake in the field.
-    """
     train_end = int(len(rows) * train)
     val_end = train_end + int(len(rows) * val)
     return rows[:train_end], rows[train_end:val_end], rows[val_end:]
 
 
 def up_day_baseline(prices):
-    """Share of days with a positive return: the number any classifier must beat.
 
-    It is nearer 54% than 50%, which is why raw accuracy is a weak measure here.
-    """
     close = get_close(prices)
     changes = np.diff(close)
     return float(np.mean(changes > 0)) if len(changes) else 0.0
 
 
 def backtest(returns, predictions):
-    """Walk forward using model predictions, starting with $1 in each portfolio."""
     returns = np.asarray(returns, dtype=float)
     predictions = np.asarray(predictions, dtype=float)
     if len(returns) == 0 or len(returns) != len(predictions):
